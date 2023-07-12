@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EXIF</title>
+  
+  <link rel="stylesheet" href="{{url_for('static',filename='assets/css/uploadstyle.css')}}">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <link rel="stylesheet" href="{{url_for('static',filename='assets/css/loader.css')}}">
+</head>
+
+<body>
+
+  <div class="gg">
+    <div class="loader">Loading...</div>  
+</div>
+
+
+
+  <div class="wrapper">
+    <header>Upload Your File</header>
+    <form action="/success" id="myform" enctype="multipart/form-data" method="POST" onchange="return fileValidation()" target="_parent" >
+      <input class="file-input" type="file" name="file" hidden >
+      <i class="fas fa-cloud-upload-alt"></i>
+      <p>Browse File to Upload</p>
+    </form>
+    <section class="progress-area"></section>
+    <section class="uploaded-area"></section>
+  </div>
+
+  <script src="{{url_for('static',filename='assets/js/uploadscript.js')}}"></script>
+
+
+<script>
+    document.onreadystatechange = function() {
+if (document.readyState !== "complete") {
+    document.querySelector("body").style.visibility = "hidden";
+    document.querySelector(".gg").style.visibility = "visible";
+} else {
+    document.querySelector(".gg").style.display = "none";
+    document.querySelector("body").style.visibility = "visible";
+}
+};
+</script>
+
+
+</body>
+</html>

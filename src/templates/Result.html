@@ -1,0 +1,875 @@
+<!DOCTYPE html>
+<html lang="en" prefix="">
+
+<head>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="{{url_for('static',filename='assets/css/Resultdesign.css')}}" media="all" />
+    <link rel="stylesheet" href="{{url_for('static',filename='assets/css/leadmark.css')}}">
+    <script src="{{url_for('static',filename='assets/packs/js/runtime-68d93d980d0156e7a80f.js')}}" defer="defer"></script>
+    <script src="{{url_for('static',filename='assets/packs/js/377-5b0815b97301a5ed63b7.js')}}" defer="defer"></script>
+    <script src="{{url_for('static',filename='assets/packs/js/application-7d708ec52112ca3b39f0.js')}}" defer="defer"></script>
+
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#5bbad5">
+    <meta name="apple-mobile-web-app-title" content="Exif Viewer">
+    <meta name="application-name" content="Exif Viewer">
+    <meta name="msapplication-TileColor" content="#00aba9">
+    <meta name="theme-color" content="#ffffff">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>
+        View or remove EXIF metadata from the photo 
+    </title>
+    <meta name='description' content='' />
+    <script>
+window.onscroll = function() {
+  var currentScrollPos = window.pageYOffset;
+
+  // 20 is an arbitrary number here, just to make you think if you need the prevScrollpos variable:
+  if (currentScrollPos > 20) {
+    // I am using 'display' instead of 'top':
+    document.getElementById("hidenav").style.display = "none";
+  } else {
+    document.getElementById("hidenav").style.display = "initial";
+  }
+}
+    </script>
+
+</head>
+
+
+<body uk-height-viewport>
+    {% for message in get_flashed_messages() %}
+            <div class="alert alert-warning alert-dismissible fade show" role="alert">
+                {{message}}
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+    {% endfor %}
+    <nav class="navbar custom-navbar navbar-expand-md navbar-light fixed-top" data-spy="affix" data-offset-top="10" id="hidenav">
+        <div class="container">
+            <a class="navbar-brand" href="#" id="sadi" style="color: black;">
+                <img src="{{url_for('static',filename='assets/imgs/logo.png')}}" alt="">
+                Exif Data Viewer
+            </a>
+            <button class="navbar-toggler ml-auto" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+        </div>
+    </nav>
+    <br>
+    <br>
+    <br>
+    <br>
+    <br>
+    <nav style="position: center;">        
+        <ul class="uk-flex-center" uk-tab>
+            <li>
+                <a href="#image" uk-scroll>
+        <span class="uk-flex uk-flex-middle">
+          <img width="16" height="16" alt="" class="uk-text-muted uk-margin-small-right" uk-svg="" src="{{url_for('static',filename='assets/fa/solid/file-image-b87b9da9dee731f5e5c450d5572aafaa9ea8c439290c1e750c99d9e09612924d.svg')}}" />
+          Image metadata
+        </span>
+      </a>
+            </li>
+            <li>
+                <a href="#camera" uk-scroll>
+          <span class="uk-flex uk-flex-middle">
+            <img width="16" height="16" alt="" class="uk-text-muted uk-margin-small-right" uk-svg="" src="{{url_for('static',filename='/assets/fa/solid/camera-237f5a0f3c5cc32e14a65e01e3b3cb1032b5c866bd0cff4fca60e9d89750dd69.svg')}}" />
+            Camera settings
+          </span>
+        </a>
+            </li>
+            <li>
+                <a href="#location" uk-scroll>
+        <span class="uk-flex uk-flex-middle">
+          <img width="16" height="16" alt="" class="uk-text-muted uk-margin-small-right" uk-svg="" src="{{url_for('static',filename='/assets/fa/solid/map-marker-alt-6a6b654ec1761c8da0297841f0a26eb9f3b5bfd42a05c5f16767c263a071a422.svg')}}" />
+          Location
+        </span>
+      </a>
+            </li>
+            <li>
+                <a href="#full" uk-scroll>
+        <span class="uk-flex uk-flex-middle">
+          <img width="16" height="16" alt="" class="uk-text-muted uk-margin-small-right" uk-svg="" src="{{url_for('static',filename='/assets/fa/solid/list-alt-780b8fc54354d4704f504c27c0c7cad3370e7541b86a5ff4e32da4f9e38fb228.svg')}}" />
+          Full metadata
+        </span>
+      </a>
+            </li>
+        </ul>
+    </nav>
+    <main>
+        <section class="uk-section">
+            <div class="uk-container">
+                <div class="uk-child-width-1-2@l" uk-grid="masonry: true">
+                    <div class="uk-flex uk-flex-column uk-flex-center uk-flex-middle">
+                        <a id="upload-another-link" class="uk-button uk-button-link uk-text-right" href="{{url_for('home')}}">
+            <span class="uk-margin-small-right" uk-icon="icon: cloud-upload; ratio: 1.5"></span>
+            Upload another image
+          </a>
+          
+                        <div class="uk-flex uk-flex-center uk-flex-top uk-padding">
+                            <img width="1000" height="750" alt="" class="uk-height-max-large object-fit-contain" src="{{ url_for('static',filename = uploaded_image_path) }}" />
+                        </div>
+
+                        <div style="margin-top:-13px;"></div>
+                        
+                        <!-- <div class="uk-text-center uk-margin-auto uk-width-large">
+                            <p>
+                                Metadata takes
+                                <strong>215 KB (5.6%)</strong> of this image and <strong>includes location data.</strong> To protect your privacy, download this image without metadata by clicking the button below.
+                            </p>
+                            <a id="remove-metadata-link" download class="uk-button uk-button-primary uk-margin-bottom" href="/results/Xw2iZ6xLzkgZZHbqHafWh3XZ/without-metadata">
+                <span class="uk-margin-small-right" uk-icon="icon: cloud-download; ratio: 1.5"></span>
+                Remove metadata
+              </a>
+                        </div> -->
+                    </div>
+                    <div id="image">
+                        <a id="upload-another-link" class="uk-button uk-button-link uk-text-right" href="{{url_for('home')}}" style="visibility: hidden">
+                            <span class="uk-margin-small-right" uk-icon="icon: cloud-upload; ratio: 1.5"></span>
+                            Upload another image
+                          </a>
+                        <div class="uk-flex uk-flex-center uk-flex-top uk-padding">
+                            <img width="1000" height="750" alt="" class="uk-height-max-large object-fit-contain" src="{{ url_for('static',filename = mobile_images_path) }}" />
+                        </div>
+                        <br>
+                        <header class="uk-text-center uk-margin-medium-bottom">
+                            <img width="28" height="28" alt="" class="uk-text-muted" uk-svg="" src="{{url_for('static',filename='/assets/fa/solid/file-image-b87b9da9dee731f5e5c450d5572aafaa9ea8c439290c1e750c99d9e09612924d.svg')}}" />
+                            <span class="uk-margin-small-left uk-h3 uk-text-middle">Image metadata</span>
+                        </header>
+
+                        <table class="uk-table uk-table-responsive uk-table-striped">
+                            <tbody>
+                                <tr>
+                                    <td class="uk-width-1-3 uk-text-break">
+                                        <small class="uk-text-meta">Name</small>
+                                    </td>
+                                    <td class="uk-text-break">
+                                        {{file_name}}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="uk-width-1-3 uk-text-break">
+                                        <small class="uk-text-meta">File size</small>
+                                    </td>
+                                    <td class="uk-text-break">
+                                        {{fsiz}} <small>({{fsz}} bytes)</small>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="uk-width-1-3 uk-text-break">
+                                        <small class="uk-text-meta">File type</small>
+                                    </td>
+                                    <td class="uk-text-break">
+                                        {{ftype}}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="uk-width-1-3 uk-text-break">
+                                        <small class="uk-text-meta">MIME type</small>
+                                    </td>
+                                    <td class="uk-text-break">
+                                        image/{{ftype}}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="uk-width-1-3 uk-text-break">
+                                        <small class="uk-text-meta">Image size</small>
+                                    </td>
+                                    <td class="uk-text-break">
+                                        {{imgwid}} x {{imghei}} <small>({{px}} megapixels)</small>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="uk-width-1-3 uk-text-break">
+                                        <small class="uk-text-meta">Color space</small>
+                                    </td>
+                                    <td class="uk-text-break">
+                                        sRGB
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="uk-width-1-3 uk-text-break">
+                                        <small class="uk-text-meta">Created</small>
+                                    </td>
+                                    <td class="uk-text-break">
+                                        {{dttime}}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                    </div>
+                    <div id="camera">
+                        <header class="uk-text-center uk-margin-medium-bottom">
+                            <img width="28" height="28" alt="" class="uk-text-muted" uk-svg="" src="{{url_for('static',filename='/assets/fa/solid/camera-237f5a0f3c5cc32e14a65e01e3b3cb1032b5c866bd0cff4fca60e9d89750dd69.svg')}}" />
+                            <span class="uk-margin-small-left uk-h3 uk-text-middle">Camera settings</span>
+                        </header>
+
+                        <table class="uk-table uk-table-responsive uk-table-striped">
+                            <tbody>
+                                <tr>
+                                    <td class="uk-width-1-3 uk-text-break">
+                                        <small class="uk-text-meta">Make</small>
+                                    </td>
+                                    <td class="uk-text-break">
+                                        {{make}}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="uk-width-1-3 uk-text-break">
+                                        <small class="uk-text-meta">Model</small>
+                                    </td>
+                                    <td class="uk-text-break">
+                                        {{model}}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="uk-width-1-3 uk-text-break">
+                                        <small class="uk-text-meta">Focal length</small>
+                                    </td>
+                                    <td class="uk-text-break">
+                                        {{focallength}} mm
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="uk-width-1-3 uk-text-break">
+                                        <small class="uk-text-meta">Aperture</small>
+                                    </td>
+                                    <td class="uk-text-break">
+                                        {{apertureval}}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="uk-width-1-3 uk-text-break">
+                                        <small class="uk-text-meta">Exposure</small>
+                                    </td>
+                                    <td class="uk-text-break">
+                                        {{expo}}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="uk-width-1-3 uk-text-break">
+                                        <small class="uk-text-meta">ISO</small>
+                                    </td>
+                                    <td class="uk-text-break">
+                                        {{iso}}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="uk-width-1-3 uk-text-break">
+                                        <small class="uk-text-meta">Flash</small>
+                                    </td>
+                                    <td class="uk-text-break">
+                                        {{flas[:1]}}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                    </div>
+                    <div id="location">
+                        <header class="uk-text-center uk-margin-medium-bottom">
+                            <img width="28" height="28" alt="" class="uk-text-muted" uk-svg="" src="{{url_for('static',filename='/assets/fa/solid/map-marker-alt-6a6b654ec1761c8da0297841f0a26eb9f3b5bfd42a05c5f16767c263a071a422.svg')}}" />
+                            <span class="uk-margin-small-left uk-h3 uk-text-middle">Location</span>
+                        </header>
+
+                        <table class="uk-table uk-table-responsive uk-table-striped">
+                            <tbody>
+                                <tr>
+                                    <td class="uk-width-1-3 uk-text-break">
+                                        <small class="uk-text-meta">Altitude</small>
+                                    </td>
+                                    <td class="uk-text-break">
+                                        {{gpsalt}} m Above Sea Level
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="uk-width-1-3 uk-text-break">
+                                        <small class="uk-text-meta">Latitude</small>
+                                    </td>
+                                    <td class="uk-text-break">
+                                        {{rld}} deg {{rln}}&#39; {{rlf}}&quot; {{latref}}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="uk-width-1-3 uk-text-break">
+                                        <small class="uk-text-meta">Longitude</small>
+                                    </td>
+                                    <td class="uk-text-break">
+                                        {{rlod}} deg {{rlon}}&#39; {{rlof}}&quot; {{lonref}}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <div class="uk-height-large">
+                            <div class="uk-width-1-1 uk-height-1-1">
+                                <iframe title="Location of this photo on Google Maps" src="{{embedded_map_place_holder}}" width="100%" height="100%" frameborder="0" style="border:0;" allowfullscreen="" aria-hidden="false" tabindex="0" loading="lazy"></iframe>
+                            </div>
+                        </div>
+
+
+                    </div>
+                </div>
+
+                <div class="uk-margin-large-top">
+                    <div id="full">
+                        <header class="uk-text-center uk-margin-medium-bottom">
+                            <img width="28" height="28" alt="" class="uk-text-muted" uk-svg="" src="{{url_for('static',filename='/assets/fa/solid/list-alt-780b8fc54354d4704f504c27c0c7cad3370e7541b86a5ff4e32da4f9e38fb228.svg')}}" />
+                            <span class="uk-margin-small-left uk-h3 uk-text-middle">Full metadata</span>
+                        </header>
+
+                        <table class="uk-table uk-table-responsive uk-table-striped">
+                            <tbody>
+                                <tr>
+                                    <td class="uk-width-1-3 uk-text-break">
+                                        <small class="uk-text-meta">Image width</small>
+                                    </td>
+                                    <td class="uk-text-break">
+                                        {{imgwid}}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="uk-width-1-3 uk-text-break">
+                                        <small class="uk-text-meta">Model</small>
+                                    </td>
+                                    <td class="uk-text-break">
+                                        {{model}}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="uk-width-1-3 uk-text-break">
+                                        <small class="uk-text-meta">Image height</small>
+                                    </td>
+                                    <td class="uk-text-break">
+                                        {{imghei}}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="uk-width-1-3 uk-text-break">
+                                        <small class="uk-text-meta">Orientation</small>
+                                    </td>
+                                    <td class="uk-text-break">
+                                        {{ori}}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="uk-width-1-3 uk-text-break">
+                                        <small class="uk-text-meta">Datetime</small>
+                                    </td>
+                                    <td class="uk-text-break">
+                                        {{dttime}}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="uk-width-1-3 uk-text-break">
+                                        <small class="uk-text-meta">y and c positioning</small>
+                                    </td>
+                                    <td class="uk-text-break">
+                                        {{ycpos}}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="uk-width-1-3 uk-text-break">
+                                        <small class="uk-text-meta">Exif ifd pointer</small>
+                                    </td>
+                                    <td class="uk-text-break">
+                                        {{exififd}}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="uk-width-1-3 uk-text-break">
+                                        <small class="uk-text-meta">Resolution unit</small>
+                                    </td>
+                                    <td class="uk-text-break">
+                                        {{resunit}}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="uk-width-1-3 uk-text-break">
+                                        <small class="uk-text-meta">Gps ifd pointer</small>
+                                    </td>
+                                    <td class="uk-text-break">
+                                        {{gpsifd}}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="uk-width-1-3 uk-text-break">
+                                        <small class="uk-text-meta">X resolution</small>
+                                    </td>
+                                    <td class="uk-text-break">
+                                        {{xres}}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="uk-width-1-3 uk-text-break">
+                                        <small class="uk-text-meta">Y resolution</small>
+                                    </td>
+                                    <td class="uk-text-break">
+                                        {{yres}}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="uk-width-1-3 uk-text-break">
+                                        <small class="uk-text-meta">Make</small>
+                                    </td>
+                                    <td class="uk-text-break">
+                                        {{make}}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="uk-width-1-3 uk-text-break">
+                                        <small class="uk-text-meta">Photographic sensitivity</small>
+                                    </td>
+                                    <td class="uk-text-break">
+                                        {{iso}}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="uk-width-1-3 uk-text-break">
+                                        <small class="uk-text-meta">Exposure program</small>
+                                    </td>
+                                    <td class="uk-text-break">
+                                        {{exposurepro}}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="uk-width-1-3 uk-text-break">
+                                        <small class="uk-text-meta">f number</small>
+                                    </td>
+                                    <td class="uk-text-break">
+                                        {{fnum}}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="uk-width-1-3 uk-text-break">
+                                        <small class="uk-text-meta">Exposure time</small>
+                                    </td>
+                                    <td class="uk-text-break">
+                                        {{exposuretime}}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="uk-width-1-3 uk-text-break">
+                                        <small class="uk-text-meta">Sensing method</small>
+                                    </td>
+                                    <td class="uk-text-break">
+                                        {{sensmethod}}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="uk-width-1-3 uk-text-break">
+                                        <small class="uk-text-meta">Subsec time digitized</small>
+                                    </td>
+                                    <td class="uk-text-break">
+                                        {{sstd}}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="uk-width-1-3 uk-text-break">
+                                        <small class="uk-text-meta">Subsec time original</small>
+                                    </td>
+                                    <td class="uk-text-break">
+                                        {{ssto}}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="uk-width-1-3 uk-text-break">
+                                        <small class="uk-text-meta">Subsec time</small>
+                                    </td>
+                                    <td class="uk-text-break">
+                                        {{sst}}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="uk-width-1-3 uk-text-break">
+                                        <small class="uk-text-meta">Focal length</small>
+                                    </td>
+                                    <td class="uk-text-break">
+                                        {{focallength}}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="uk-width-1-3 uk-text-break">
+                                        <small class="uk-text-meta">Flash</small>
+                                    </td>
+                                    <td class="uk-text-break">
+                                        {{flas[:1]}}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="uk-width-1-3 uk-text-break">
+                                        <small class="uk-text-meta">Flash mode</small>
+                                    </td>
+                                    <td class="uk-text-break">
+                                        {{flasmode}}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="uk-width-1-3 uk-text-break">
+                                        <small class="uk-text-meta">Red eye reduction supported</small>
+                                    </td>
+                                    <td class="uk-text-break">
+                                        {{rers}}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="uk-width-1-3 uk-text-break">
+                                        <small class="uk-text-meta">Light source</small>
+                                    </td>
+                                    <td class="uk-text-break">
+                                        {{lightsource}}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="uk-width-1-3 uk-text-break">
+                                        <small class="uk-text-meta">Metering mode</small>
+                                    </td>
+                                    <td class="uk-text-break">
+                                        {{mmmode}}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="uk-width-1-3 uk-text-break">
+                                        <small class="uk-text-meta">Scene capture type</small>
+                                    </td>
+                                    <td class="uk-text-break">
+                                        {{scenecaptype}}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="uk-width-1-3 uk-text-break">
+                                        <small class="uk-text-meta">Focal length in 35mm film</small>
+                                    </td>
+                                    <td class="uk-text-break">
+                                        {{focallenin35}}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="uk-width-1-3 uk-text-break">
+                                        <small class="uk-text-meta">Max aperture value</small>
+                                    </td>
+                                    <td class="uk-text-break">
+                                        {{maxaperture}}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="uk-width-1-3 uk-text-break">
+                                        <small class="uk-text-meta">Datetime digitized</small>
+                                    </td>
+                                    <td class="uk-text-break">
+                                        {{datetimedig}}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="uk-width-1-3 uk-text-break">
+                                        <small class="uk-text-meta">Exposure bias value</small>
+                                    </td>
+                                    <td class="uk-text-break">
+                                        {{expobiasval}}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="uk-width-1-3 uk-text-break">
+                                        <small class="uk-text-meta">Pixel y dimension</small>
+                                    </td>
+                                    <td class="uk-text-break">
+                                        {{pixely}}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="uk-width-1-3 uk-text-break">
+                                        <small class="uk-text-meta">White balance</small>
+                                    </td>
+                                    <td class="uk-text-break">
+                                        {{whitebal}}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="uk-width-1-3 uk-text-break">
+                                        <small class="uk-text-meta">Datetime original</small>
+                                    </td>
+                                    <td class="uk-text-break">
+                                        {{datetimeori}}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="uk-width-1-3 uk-text-break">
+                                        <small class="uk-text-meta">Brightness value</small>
+                                    </td>
+                                    <td class="uk-text-break">
+                                        {{brightnessval}}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="uk-width-1-3 uk-text-break">
+                                        <small class="uk-text-meta">Pixel x dimension</small>
+                                    </td>
+                                    <td class="uk-text-break">
+                                        {{pixelx}}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="uk-width-1-3 uk-text-break">
+                                        <small class="uk-text-meta">Exposure mode</small>
+                                    </td>
+                                    <td class="uk-text-break">
+                                        {{expomode}}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="uk-width-1-3 uk-text-break">
+                                        <small class="uk-text-meta">Aperture value</small>
+                                    </td>
+                                    <td class="uk-text-break">
+                                        {{apertureval}}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="uk-width-1-3 uk-text-break">
+                                        <small class="uk-text-meta">Color space</small>
+                                    </td>
+                                    <td class="uk-text-break">
+                                        {{colspace}}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="uk-width-1-3 uk-text-break">
+                                        <small class="uk-text-meta">Shutter speed value</small>
+                                    </td>
+                                    <td class="uk-text-break">
+                                        {{shutterspeedval}}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="uk-width-1-3 uk-text-break">
+                                        <small class="uk-text-meta">Exif version</small>
+                                    </td>
+                                    <td class="uk-text-break">
+                                        {{exif_version}}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="uk-width-1-3 uk-text-break">
+                                        <small class="uk-text-meta">GPS latitude ref</small>
+                                    </td>
+                                    <td class="uk-text-break">
+                                        {{latref}}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="uk-width-1-3 uk-text-break">
+                                        <small class="uk-text-meta">GPS latitude</small>
+                                    </td>
+                                    <td class="uk-text-break">
+                                        {{laat}}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="uk-width-1-3 uk-text-break">
+                                        <small class="uk-text-meta">GPS longitude ref </small>
+                                    </td>
+                                    <td class="uk-text-break">
+                                        {{lonref}}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="uk-width-1-3 uk-text-break">
+                                        <small class="uk-text-meta">GPS longitude</small>
+                                    </td>
+                                    <td class="uk-text-break">
+                                        {{loong}}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="uk-width-1-3 uk-text-break">
+                                        <small class="uk-text-meta">GPS altitude ref</small>
+                                    </td>
+                                    <td class="uk-text-break">
+                                        {{gpsaltref}}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="uk-width-1-3 uk-text-break">
+                                        <small class="uk-text-meta">GPS altitude</small>
+                                    </td>
+                                    <td class="uk-text-break">
+                                        {{gpsalt}}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="uk-width-1-3 uk-text-break">
+                                        <small class="uk-text-meta">GPS timestamp</small>
+                                    </td>
+                                    <td class="uk-text-break">
+                                        {{gpstime}}
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="uk-width-1-3 uk-text-break">
+                                        <small class="uk-text-meta">GPS datestamp</small>
+                                    </td>
+                                    <td class="uk-text-break">
+                                        {{gpsdate}}
+                                    </td>
+                                </tr>
+
+                            </tbody>
+                        </table>
+
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <a id="sticky-to-top" aria-label="scroll to top" class="uk-icon-button" href="#" uk-totop uk-scroll>
+    </a>
+    <!-- Contact Section -->
+    <section id="contact" class="section has-img-bg pb-0">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-5 my-3">
+                    <p class="mb-0" style="font-size: medium;">Phone</p>
+                    <p class="mb-4">+919472375590</p>
+
+                    <p class="mb-0" style="font-size: medium;">Address</p>
+                    <p class="mb-4">JNNCE 577204</p>
+
+                    <p class="mb-0" style="font-size: medium;">Email</p>
+                    <p class="mb-0">info@website.com</p>
+                    <p></p>
+                </div>
+                <div class="col-md-7">
+                    <form action="/mail" method="post",enctype = "multipart/form-data">
+                        <p class="mb-4" style="font-size: large;">Drop Us A Line</p>
+                        <div class="form-row">
+                            <div class="form-group col-sm-4">
+                                <input type="text" class="form-control text-white rounded-0 bg-transparent" name="name" placeholder="Name" id="name">
+                            </div>
+                            <div class="form-group col-sm-4">
+                                <input type="email" class="form-control text-white rounded-0 bg-transparent" name="Email" placeholder="Email" id="mail">
+                            </div>
+                            <div class="form-group col-sm-4">
+                                <input type="text" class="form-control text-white rounded-0 bg-transparent" name="subject" placeholder="Subject" id="subject">
+                            </div>
+                            <div class="form-group col-12">
+                                <textarea name="message" id="message" cols="30" rows="4" class="form-control text-white rounded-0 bg-transparent" placeholder="Message" ></textarea>
+
+                            </div>
+                            <div class="form-group col-12 mb-0">
+                                <button type="submit" class="btn btn-primary rounded w-md mt-3">Send</button>      
+                            </div>                          
+                        </div>                          
+                    </form>
+                </div>
+            </div>
+            <!-- Page Footer -->
+            <footer class="mt-5 py-4 border-top border-secondary">
+                <p class="mb-0 small">&copy; <script>document.write(new Date().getFullYear())</script>, Project Created By <a href="https://www.google.com" target="_blank">Brav0 Team.</a>  All rights reserved </p>     
+            </footer>
+        </div>
+    </section>
+            <!-- End of Page Footer -->  
+
+</body>
+
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <!-- <p>File Uploaded successfully</p>
+    <p>File Name : {{name}}</p>
+    <img src="{{ url_for('static',filename = mobile_images_path) }}" alt="Mobile image" width="200" height="200">
+    <pre><h3>Data :</h3>
+        {{data}}
+    </pre>
+    <pre>
+        <h3>GPSData :</h3>
+    {{gps_data}}
+    </pre>
+    <h3>Google Maps link :</h3>
+    <a href="{{url_link_place}}" target="_blank">Click Here!</a>
+    <br>
+    <br>
+    <a href="http://127.0.0.1:5000" >Go Back to Main page</a>
+    <br> --> 
+    <!-- Change the url -->
+    <!-- <h3>Google Maps embedded :</h3>
+    <iframe src="{{embedded_map_place_holder}}" width="100%" height="700" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe> -->
+    <!-- <script src="{{google_map_url_place}}"></script>
+
+    
+</body>
+</html>
